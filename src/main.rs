@@ -1,30 +1,21 @@
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::PathBuf;
 
 //fn wait() {}
 
 fn main() -> std::io::Result<()> {
     println!("Hello, world!");
 
-    //let cur = env::current_dir().unwrap();
+    let cur = env::current_dir()?;
 
-    let cur;
-    match env::current_dir() {
-        Ok(cur2) => cur = cur2,
-        Err(e) => {
-            println!("Failed getting current directory");
-            return Err(e);
-        }
+    let mut target_dir = cur.clone();
+
+    if cfg!(debug_assertions) {
+        target_dir.push("test");
     }
 
-    let mut target_dir = PathBuf::new();
-    target_dir.push(cur);
-    target_dir.push("test");
-
-    let cur_str = target_dir.as_path().display();
-    println!("READING DIR: {}", cur_str);
+    println!("READING DIR: {}", target_dir.display());
 
     let files = fs::read_dir(target_dir.clone())?;
 
@@ -55,6 +46,7 @@ fn main() -> std::io::Result<()> {
         );
 
         fs::rename(dir_entry_uw.path(), new_path.as_path())?;
+
         i += 1;
     }
 
