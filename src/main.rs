@@ -8,6 +8,8 @@ fn rename_files_in_folder(dir: &PathBuf) -> Result<()> {
     let files = fs::read_dir(dir.clone())?;
 
     let mut i = 0;
+    let mut fi = 0;
+
     for dir_entry in files {
         let dir_entry_uw = dir_entry.unwrap();
         println!("-- found file: {}", dir_entry_uw.path().display());
@@ -15,6 +17,12 @@ fn rename_files_in_folder(dir: &PathBuf) -> Result<()> {
 
         if path.is_dir() {
             rename_files_in_folder(&path)?; // recurse
+            
+            // rename the folder
+            let mut new_dir_path = dir.clone();
+            new_dir_path.push(fi.to_string());
+            fs::rename(path.as_path(), new_dir_path)?;
+            fi += 1;
             continue;
         }
 
@@ -51,6 +59,7 @@ fn main() -> std::io::Result<()> {
 
     let mut target_dir = cur.clone();
 
+    // if testing use a custom path
     if cfg!(debug_assertions) {
         target_dir.push("test");
     }
